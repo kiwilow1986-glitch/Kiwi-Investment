@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Kiwi Investment Hub</title>
+<style>
+  :root{
+    --grad-start:#0a0a0a;
+    --grad-mid:#3a3a3a;
+    --grad-end:#e8e8e8;
+    --card:#ffffff18;
+    --card2:#ffffff10;
+    --border:rgba(255,255,255,0.15);
+    --border2:rgba(255,255,255,0.25);
+    --text:#ffffff;
+    --text2:rgba(255,255,255,0.75);
+    --text3:rgba(255,255,255,0.45);
+    --up:#2ecc87;--up-bg:rgba(46,204,135,0.15);
+    --down:#ff5c5c;--down-bg:rgba(255,92,92,0.15);
+    --accent:#7c8fff;--accent-bg:rgba(124,143,255,0.18);
+    --gold:#ffc147;--gold-bg:rgba(255,193,71,0.15);
+    --radius:18px;--radius-sm:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{min-height:100%}
+  body{
+    background: linear-gradient(160deg, var(--grad-start) 0%, var(--grad-mid) 50%, var(--grad-end) 100%);
+    background-attachment:fixed;
+    color:var(--text);
+    font-family:-apple-system,'SF Pro Display','Segoe UI',sans-serif;
+    min-height:100vh;
+    padding-bottom:55px;
+  }
+
+  /* ── Header ── */
+  .header{
+    padding:52px 20px 16px;
+    background:linear-gradient(180deg,rgba(0,0,0,0.55) 0%,transparent 100%);
+  }
+  .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+  .header h1{font-size:22px;font-weight:800;letter-spacing:-0.5px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,0.4)}
+  .header-sub{font-size:12px;color:var(--text3)}
+  .refresh-btn{
+    background:rgba(255,255,255,0.12);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.2);
+    color:#fff;font-size:13px;font-weight:500;
+    padding:8px 16px;border-radius:22px;cursor:pointer;
+    display:flex;align-items:center;gap:6px;
+  }
+  .refresh-btn:active{opacity:0.7;transform:scale(0.97)}
+  .spin-icon{display:inline-block}
+  .spinning{animation:spin 0.9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ── Holdings bar ── */
+  .holdings-bar{
+    display:flex;gap:10px;padding:12px 20px;
+    overflow-x:auto;scrollbar-width:none;
+  }
+  .holdings-bar::-webkit-scrollbar{display:none}
+  .h-pill{
+    flex-shrink:0;
+    background:rgba(255,255,255,0.12);
+    backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:22px;padding:8px 16px;
+  }
+  .h-pill-sym{font-size:15px;font-weight:700;color:#fff}
+  .h-pill-info{font-size:11px;color:var(--text2);margin-top:1px}
+  .margin-pill{
+    flex-shrink:0;
+    background:rgba(255,92,92,0.18);
+    border:1px solid rgba(255,92,92,0.35);
+    border-radius:22px;padding:8px 16px;
+    font-size:12px;color:#ff8080;font-weight:500;
+  }
+
+  /* ── Tabs ── */
+  .tabs{
+    display:flex;padding:0 20px;gap:4px;
+    margin-bottom:16px;
+    overflow-x:auto;scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    flex-shrink:0;
+    font-size:14px;font-weight:600;
+    padding:10px 18px;border-radius:22px;
+    cursor:pointer;color:rgba(255,255,255,0.5);
+    background:transparent;border:1px solid transparent;
+    transition:all 0.2s;white-space:nowrap;
+  }
+  .tab.active{
+    background:rgba(255,255,255,0.15);
+    backdrop-filter:blur(10px);
+    border-color:rgba(255,255,255,0.3);
+    color:#fff;
+  }
+
+  /* ── News feed ── */
+  .news-feed{padding:0 16px}
+
+  .ticker-section{margin-bottom:22px}
+  .ticker-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 4px;margin-bottom:10px;
+  }
+  .ticker-label{
+    display:flex;align-items:center;gap:8px;
+    font-size:18px;font-weight:800;color:#fff;
+    letter-spacing:-0.3px;text-shadow:0 1px 8px rgba(0,0,0,0.3);
+  }
+  .ticker-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  .ticker-subname{font-size:12px;font-weight:400;color:var(--text2);margin-left:2px}
+  .held-chip{font-size:10px;font-weight:700;background:var(--accent-bg);color:var(--accent);padding:2px 8px;border-radius:20px;border:1px solid rgba(124,143,255,0.3)}
+  .ticker-count{font-size:11px;color:var(--text3)}
+
+  /* AI Summary card */
+  .ai-summary-card{
+    background:rgba(124,143,255,0.1);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(124,143,255,0.25);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    margin-bottom:8px;
+  }
+  .ai-card-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .ai-badge{font-size:10px;font-weight:700;background:var(--accent-bg);color:var(--accent);padding:3px 10px;border-radius:20px;letter-spacing:0.3px;border:1px solid rgba(124,143,255,0.3)}
+  .sent-chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+  .s-bull{background:var(--up-bg);color:var(--up);border:1px solid rgba(46,204,135,0.3)}
+  .s-bear{background:var(--down-bg);color:var(--down);border:1px solid rgba(255,92,92,0.3)}
+  .s-neu{background:var(--gold-bg);color:var(--gold);border:1px solid rgba(255,193,71,0.3)}
+  .ai-zh{font-size:15px;color:#fff;line-height:1.65;margin-bottom:7px;font-weight:400}
+  .ai-en{font-size:12px;color:var(--text2);line-height:1.55}
+  .ai-loading{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)}
+  .sm-spin{width:12px;height:12px;border:1.5px solid rgba(255,255,255,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0}
+
+  /* Individual news cards */
+  .news-card{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:var(--radius-sm);
+    margin-bottom:8px;
+    cursor:pointer;
+    transition:background 0.15s;
+  }
+  .news-card:active{background:rgba(255,255,255,0.14)}
+  .news-card-inner{padding:13px 15px}
+  .news-title{font-size:14px;line-height:1.5;color:#fff;margin-bottom:7px;font-weight:500}
+  .news-meta{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
+  .news-meta-dot{opacity:0.4}
+  .read-more{margin-left:auto;font-size:11px;color:var(--accent);opacity:0.8}
+
+  .no-news-card{
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:var(--radius-sm);
+    padding:16px;text-align:center;
+    font-size:13px;color:var(--text3);
+    margin-bottom:8px;
+  }
+
+  .empty-state{text-align:center;padding:52px 24px;color:var(--text3)}
+  .empty-icon{font-size:40px;margin-bottom:14px}
+  .empty-title{font-size:16px;font-weight:600;color:var(--text2);margin-bottom:8px}
+  .empty-sub{font-size:13px;line-height:1.65}
+
+  /* ── Strategy tab ── */
+  .strat-list{padding:0 16px}
+  .strat-card{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:var(--radius);
+    margin-bottom:10px;overflow:hidden;
+  }
+  .strat-hdr{padding:15px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+  .strat-sym{font-size:17px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+  .strat-name{font-size:12px;color:var(--text2);margin-top:3px}
+  .strat-preview{font-size:11px;color:var(--text3);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+  .strat-arrow{font-size:20px;color:var(--text2);transition:transform 0.2s;line-height:1}
+  .strat-body{display:none;padding:0 16px 16px;border-top:1px solid rgba(255,255,255,0.1)}
+  .strat-body textarea{
+    width:100%;margin-top:13px;
+    background:rgba(0,0,0,0.25);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:var(--radius-sm);
+    color:#fff;font-size:14px;font-family:inherit;
+    padding:12px 14px;resize:vertical;min-height:110px;line-height:1.6;
+  }
+  .strat-body textarea:focus{outline:none;border-color:var(--accent)}
+  .strat-body textarea::placeholder{color:rgba(255,255,255,0.25)}
+  .save-row{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .save-btn{
+    font-size:13px;padding:8px 20px;border-radius:22px;
+    border:1px solid rgba(255,255,255,0.2);
+    background:rgba(255,255,255,0.1);
+    color:#fff;cursor:pointer;font-weight:500;
+  }
+  .save-btn:active{opacity:0.7}
+  .saved-ok{font-size:12px;color:var(--up);display:none}
+
+  /* ── Holdings tab ── */
+  .hold-list{padding:0 16px}
+  .hold-card{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:var(--radius);padding:16px;margin-bottom:12px;
+  }
+  .hold-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+  .hold-sym{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+  .hold-name{font-size:12px;color:var(--text2);margin-top:3px}
+  .hold-tiger-note{font-size:11px;color:var(--text3);text-align:right;line-height:1.55;background:rgba(255,255,255,0.06);padding:6px 10px;border-radius:10px}
+  .hold-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .hold-item{background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);padding:10px 8px;text-align:center}
+  .hold-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+  .hold-val{font-size:16px;font-weight:700;color:#fff}
+  .margin-hold-card{
+    background:rgba(255,92,92,0.12);
+    border:1px solid rgba(255,92,92,0.25);
+    border-radius:var(--radius);padding:16px;margin-bottom:12px;
+  }
+  .margin-hold-title{font-size:15px;font-weight:700;color:#ff7070;margin-bottom:8px}
+  .margin-hold-note{font-size:13px;color:rgba(255,120,120,0.8);line-height:1.7}
+
+  /* ── Spinner / loading ── */
+  .spinner{width:24px;height:24px;border:2px solid rgba(255,255,255,0.15);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px}
+  .loading-block{text-align:center;padding:48px 24px;color:var(--text2);font-size:14px}
+
+  /* ── Bottom nav ── */
+  .bottom-nav{
+    position:fixed;bottom:0;left:0;right:0;
+    background:rgba(10,10,10,0.82);
+    backdrop-filter:blur(20px);
+    border-top:1px solid rgba(255,255,255,0.1);
+    display:flex;
+    padding:0 0 env(safe-area-inset-bottom,0px);
+  }
+  .nav-btn{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:10px 4px 8px;cursor:pointer;
+    font-size:10px;color:rgba(255,255,255,0.4);font-weight:500;gap:3px;
+    background:transparent;border:none;
+    transition:color 0.2s;
+  }
+  .nav-btn.active{color:#fff}
+  .nav-icon{font-size:22px;line-height:1}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <h1>📡 Kiwi Investment Hub</h1>
+    <button class="refresh-btn" onclick="refreshNews()" id="refresh-btn">
+      <span class="spin-icon" id="spin-icon">↻</span> Refresh
+    </button>
+  </div>
+  <div class="header-sub" id="last-update">正在加载...</div>
+</div>
+
+<div class="holdings-bar">
+  <div class="h-pill">
+    <div class="h-pill-sym">TEM</div>
+    <div class="h-pill-info">48股 · avg $63.34</div>
+  </div>
+  <div class="h-pill">
+    <div class="h-pill-sym">RBLX</div>
+    <div class="h-pill-info">110股 · avg $75.33</div>
+  </div>
+  <div class="margin-pill">⚠ Margin -$3,367.81</div>
+</div>
+
+<div id="page-news">
+  <div class="tabs">
+    <button class="tab active" onclick="filterNews('all',this)">全部</button>
+    <button class="tab" onclick="filterNews('held',this)">持有</button>
+    <button class="tab" onclick="filterNews('watch',this)">观察</button>
+  </div>
+  <div class="news-feed" id="news-feed">
+    <div class="loading-block"><div class="spinner"></div>获取最新消息中...</div>
+  </div>
+</div>
+
+<div id="page-strategy" style="display:none">
+  <div style="padding:16px 16px 10px"><span style="font-size:18px;font-weight:800;color:#fff">📝 我的策略</span></div>
+  <div class="strat-list" id="strat-list"></div>
+</div>
+
+<div id="page-holdings" style="display:none">
+  <div style="padding:16px 16px 10px"><span style="font-size:18px;font-weight:800;color:#fff">💼 我的持仓</span></div>
+  <div class="hold-list">
+    <div class="hold-card">
+      <div class="hold-top">
+        <div><div class="hold-sym">TEM</div><div class="hold-name">Tempus AI</div></div>
+        <div class="hold-tiger-note">股价请查看<br>Tiger Trade</div>
+      </div>
+      <div class="hold-grid">
+        <div class="hold-item"><div class="hold-label">股数</div><div class="hold-val">48</div></div>
+        <div class="hold-item"><div class="hold-label">平均成本</div><div class="hold-val">$63.34</div></div>
+        <div class="hold-item"><div class="hold-label">总成本</div><div class="hold-val">$3,040</div></div>
+      </div>
+    </div>
+    <div class="hold-card">
+      <div class="hold-top">
+        <div><div class="hold-sym">RBLX</div><div class="hold-name">Roblox</div></div>
+        <div class="hold-tiger-note">股价请查看<br>Tiger Trade</div>
+      </div>
+      <div class="hold-grid">
+        <div class="hold-item"><div class="hold-label">股数</div><div class="hold-val">110</div></div>
+        <div class="hold-item"><div class="hold-label">平均成本</div><div class="hold-val">$75.33</div></div>
+        <div class="hold-item"><div class="hold-label">总成本</div><div class="hold-val">$8,286</div></div>
+      </div>
+    </div>
+    <div class="margin-hold-card">
+      <div class="margin-hold-title">⚠ Margin 负债</div>
+      <div class="margin-hold-note">
+        目前负债：<b style="color:#ff5c5c;font-size:16px">-$3,367.81</b><br>
+        TEM + RBLX 总成本 $11,326<br>
+        Margin 未还清前注意利息成本<br>
+        股价需要涨回成本价才能转盈
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom navigation -->
+<div class="bottom-nav">
+  <button class="nav-btn active" id="nav-news" onclick="switchPage('news')">
+    <span class="nav-icon">📰</span>消息
+  </button>
+  <button class="nav-btn" id="nav-strategy" onclick="switchPage('strategy')">
+    <span class="nav-icon">📝</span>策略
+  </button>
+  <button class="nav-btn" id="nav-holdings" onclick="switchPage('holdings')">
+    <span class="nav-icon">💼</span>持仓
+  </button>
+</div>
+
+<script>
+const TICKERS=[
+  {sym:'TEM', name:'Tempus AI',     held:true},
+  {sym:'RBLX',name:'Roblox',        held:true},
+  {sym:'PLTR',name:'Palantir',      held:false},
+  {sym:'TSLA',name:'Tesla',         held:false},
+  {sym:'NVDA',name:'Nvidia',        held:false},
+  {sym:'AVAV',name:'AeroVironment', held:false},
+  {sym:'SNDK',name:'SanDisk',       held:false},
+  {sym:'MU',  name:'Micron',        held:false},
+  {sym:'VRT', name:'Vertiv',        held:false},
+  {sym:'IREN',name:'IREN',          held:false},
+  {sym:'SPCX',name:'SpaceX',        held:false},
+];
+const SK='kiwi_strats_v2';
+const NK='kiwi_news_v2';
+
+function lS(){try{return JSON.parse(localStorage.getItem(SK))||{};}catch(e){return{};}}
+function sS(sym,v){const d=lS();d[sym]=v;localStorage.setItem(SK,JSON.stringify(d));}
+function saveNC(d){localStorage.setItem(NK,JSON.stringify({ts:Date.now(),d}));}
+function loadNC(){try{const c=JSON.parse(localStorage.getItem(NK));if(c?.d)return c;}catch(e){}return null;}
+
+let newsData={}, aiData={}, currentFilter='all', isRefreshing=false;
+
+async function fetchNews(sym){
+  const rss=`https://feeds.finance.yahoo.com/rss/2.0/headline?s=${sym}&region=US&lang=en-US`;
+  try{
+    const r=await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rss)}&count=5`,{signal:AbortSignal.timeout(10000)});
+    if(!r.ok)throw 0;
+    const d=await r.json();
+    if(d.status!=='ok'||!d.items?.length)throw 0;
+    return d.items.map(i=>({title:i.title,source:i.author||'Yahoo Finance',time:Math.floor(new Date(i.pubDate).getTime()/1000),link:i.link,sym}));
+  }catch(e){return[];}
+}
+
+async function analyzeForTicker(sym,articles){
+  const t=TICKERS.find(x=>x.sym===sym);
+  if(!articles.length){aiData[sym]={err:true};updateAI(sym);return;}
+  const headlines=articles.map((a,i)=>`${i+1}. ${a.title}`).join('\n');
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:500,
+        messages:[{role:'user',content:`分析 ${sym} (${t.name}) 的最新新闻，帮助马来西亚散户投资者理解。
+
+新闻：\n${headlines}
+
+只回复JSON（不要markdown）：
+{"sentiment":"bullish or bearish or neutral","zh":"1-2句超简单中文，说人话，好坏消息，最重要的一点","en":"1-2 plain English sentences, good or bad, key takeaway"}`}]})
+    });
+    const d=await resp.json();
+    const txt=d.content.map(c=>c.text||'').join('');
+    aiData[sym]=JSON.parse(txt.replace(/```json|```/g,'').trim());
+  }catch(e){aiData[sym]={err:true};}
+  updateAI(sym);
+}
+
+function updateAI(sym){
+  const el=document.getElementById('ai-'+sym);
+  if(!el)return;
+  const ai=aiData[sym];
+  if(!ai||ai.err){el.innerHTML='<span style="font-size:12px;color:rgba(255,255,255,0.3)">AI 分析暂时不可用</span>';return;}
+  const sc=ai.sentiment==='bullish'?'s-bull':ai.sentiment==='bearish'?'s-bear':'s-neu';
+  const sl=ai.sentiment==='bullish'?'📈 利好 Bullish':ai.sentiment==='bearish'?'📉 利空 Bearish':'➡️ 中性 Neutral';
+  el.innerHTML=`<div class="ai-card-hdr"><span class="ai-badge">✦ AI 分析</span><span class="sent-chip ${sc}">${sl}</span></div>
+<div class="ai-zh">${ai.zh}</div>
+<div class="ai-en">${ai.en}</div>`;
+}
+
+function ta(ts){
+  const m=Math.floor((Date.now()/1000-ts)/60);
+  if(m<1)return'刚刚';if(m<60)return m+'分钟前';
+  if(m<1440)return Math.floor(m/60)+'小时前';
+  return Math.floor(m/1440)+'天前';
+}
+
+function renderNews(){
+  const feed=document.getElementById('news-feed');
+  let list=TICKERS;
+  if(currentFilter==='held')list=TICKERS.filter(t=>t.held);
+  if(currentFilter==='watch')list=TICKERS.filter(t=>!t.held);
+
+  // Held always first
+  list=[...list.filter(t=>t.held),...list.filter(t=>!t.held)];
+
+  let html='';
+  let total=0;
+  for(const t of list){
+    const arts=newsData[t.sym]||[];
+    total+=arts.length;
+    html+=`<div class="ticker-section">
+      <div class="ticker-header">
+        <div class="ticker-label">
+          <span class="ticker-dot"></span>
+          ${t.sym}
+          ${t.held?'<span class="held-chip">持有</span>':''}
+          <span class="ticker-subname">${t.name}</span>
+        </div>
+        <span class="ticker-count">${arts.length}条</span>
+      </div>`;
+
+    if(!arts.length){
+      html+=`<div class="no-news-card">📭 暂无新闻</div>`;
+    }else{
+      // AI summary card
+      html+=`<div class="ai-summary-card" id="ai-${t.sym}">
+        <div class="ai-loading"><div class="sm-spin"></div>&nbsp;AI 分析中，请稍候...</div>
+      </div>`;
+      // News items
+      arts.forEach(a=>{
+        html+=`<div class="news-card" onclick="window.open('${a.link}','_blank')">
+          <div class="news-card-inner">
+            <div class="news-title">${a.title}</div>
+            <div class="news-meta">
+              <span>${a.source}</span>
+              <span class="news-meta-dot">·</span>
+              <span>${ta(a.time)}</span>
+              <span class="read-more">阅读 →</span>
+            </div>
+          </div>
+        </div>`;
+      });
+    }
+    html+=`</div>`;
+  }
+
+  if(total===0){
+    html=`<div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <div class="empty-title">暂时没有新闻</div>
+      <div class="empty-sub">新闻源可能暂时不可用<br>请按 Refresh 重试</div>
+    </div>`;
+  }
+  feed.innerHTML=html;
+  // Trigger AI for visible tickers
+  list.forEach(t=>{ if((newsData[t.sym]||[]).length) analyzeForTicker(t.sym,newsData[t.sym]); });
+}
+
+function filterNews(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  aiData={};
+  renderNews();
+}
+
+async function refreshNews(){
+  if(isRefreshing)return;
+  isRefreshing=true;
+  const icon=document.getElementById('spin-icon');
+  const btn=document.getElementById('refresh-btn');
+  icon.classList.add('spinning');btn.style.opacity='0.6';
+  document.getElementById('last-update').textContent='更新中...';
+  document.getElementById('news-feed').innerHTML='<div class="loading-block"><div class="spinner"></div>获取最新消息中...</div>';
+  aiData={};
+
+  const results=await Promise.allSettled(TICKERS.map(t=>fetchNews(t.sym)));
+  results.forEach((r,i)=>{newsData[TICKERS[i].sym]=r.status==='fulfilled'?r.value:[];});
+  saveNC(newsData);
+  renderNews();
+
+  const now=new Date();
+  document.getElementById('last-update').textContent=`更新于 ${now.toLocaleString('zh-MY',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}`;
+  icon.classList.remove('spinning');btn.style.opacity='1';
+  isRefreshing=false;
+}
+
+function renderStrat(){
+  const strats=lS();
+  document.getElementById('strat-list').innerHTML=TICKERS.map(t=>{
+    const val=strats[t.sym]||'';
+    const prev=val?val.substring(0,45)+(val.length>45?'...':''):'';
+    return`<div class="strat-card">
+      <div class="strat-hdr" onclick="togS('sb-${t.sym}',this)">
+        <div>
+          <div class="strat-sym">${t.sym} ${t.held?'<span class="held-chip">持有</span>':''}</div>
+          <div class="strat-name">${t.name}</div>
+          ${prev?`<div class="strat-preview">${prev}</div>`:''}
+        </div>
+        <div class="strat-arrow">›</div>
+      </div>
+      <div class="strat-body" id="sb-${t.sym}">
+        <textarea id="ta-${t.sym}" placeholder="写下你对 ${t.sym} 的策略、目标价、进出场计划...">${val}</textarea>
+        <div class="save-row">
+          <button class="save-btn" onclick="doSv('${t.sym}')">💾 保存</button>
+          <span class="saved-ok" id="ok-${t.sym}">✓ 已保存！</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function togS(id,btn){
+  const el=document.getElementById(id);
+  const open=el.style.display!=='block';
+  el.style.display=open?'block':'none';
+  btn.querySelector('.strat-arrow').style.transform=open?'rotate(90deg)':'';
+}
+function doSv(sym){
+  sS(sym,document.getElementById('ta-'+sym).value);
+  renderStrat();
+  const ok=document.getElementById('ok-'+sym);
+  ok.style.display='inline';
+  setTimeout(()=>ok.style.display='none',2000);
+}
+
+function switchPage(page){
+  ['news','strategy','holdings'].forEach(p=>{
+    document.getElementById('page-'+p).style.display=p===page?'':'none';
+    document.getElementById('nav-'+p).classList.toggle('active',p===page);
+  });
+  if(page==='strategy')renderStrat();
+  window.scrollTo(0,0);
+}
+
+// Init
+(function(){
+  const cached=loadNC();
+  if(cached?.d){
+    newsData=cached.d;
+    renderNews();
+    const age=Math.floor((Date.now()-cached.ts)/60000);
+    document.getElementById('last-update').textContent=`缓存 ${age}分钟前 · 正在更新...`;
+    refreshNews();
+  }else{
+    refreshNews();
+  }
+})();
+setInterval(refreshNews,30*60*1000);
+</script>
+</body>
+</html>
